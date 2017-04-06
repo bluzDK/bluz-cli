@@ -14,7 +14,9 @@ setup(name              = 'bluz_cli',
       install_requires  = ['pyserial', 'requests'],
       entry_points      = {'console_scripts': ['bluz = bluz_cli.__main__:main']},
       packages          = find_packages(),
+      include_package_data=True,
       py_modules=['bluz_cli'],
       package_data={
+            'bluz_cli': ['resources/*', 'resources/keys/*', 'resources/production_firmware/*', 'resources/provisioning_firmware/*', 'resources/s110/*']
       }
 )

@@ -1,5 +1,9 @@
 import argparse
 import subprocess
+import requests
+import os
+import bluz_cli
+import serial
 
 from api_url import api_url
 
@@ -50,7 +54,13 @@ class Commands:
         for line in out.split('\n'):
             if ':' in line:
                 if line.split(':')[0].strip() == 'Device ID':
-                    nrf_id = str(line.split(':')[1].strip())
+                    hw_id = str(line.split(':')[1].strip())
+
+        nrf_id = ""
+        i = len(hw_id)
+        for val in range(len(hw_id) / 2):
+            nrf_id += hw_id[i - 2:i]
+            i -= 2
 
         try:
             os.remove('device.bin')
@@ -67,14 +77,17 @@ class Commands:
         headers = {
             'x-api-key': api_key
         }
-        r = requests.post(api_url+'/provision', data=data, headers=headers)
-        response = json.loads(r.text)
-        if r.status_code == 403:
-            raise Exception("Permission denied, please contact sales at hello@bluz.io for a key")
-        elif r.status_code != 200:
-            raise Exception("Unknown server error, please try again. If the issue persists, please contact support at hello@bluz.io")
+        # r = requests.post(api_url+'/provision', data=data, headers=headers)
+        # response = json.loads(r.text)
+        # if r.status_code == 403:
+        #     raise Exception("Permission denied, please contact sales at hello@bluz.io for a key")
+        # elif r.status_code != 200:
+        #     raise Exception("Unknown server error, please try again. If the issue persists, please contact support at hello@bluz.io")
 
-        device_id = response['device_id']
+        # device_id = response['device_id']
+        device_id = 'b1e29999532A793F9C7271D6'
+
+        print "Device ID: " + device_id
 
         print "---------------------------------------"
         print "Generating Keys"
@@ -86,6 +99,8 @@ class Commands:
         args.append('--protocol')
         args.append('tcp')
         subprocess.check_output(args)
+
+        os.rename('./device.der', './device.bin')
 
         print "---------------------------------------"
         print "Sending ID to Cloud"
@@ -117,7 +132,7 @@ class Commands:
         print "---------------------------------------"
         print "Programming Provisioning Firmware"
         print "---------------------------------------"
-        f = open('int.bin', 'w')
+        f = open('./int.bin', 'w')
         counter = device_id[4:8]
         first = int('0x' + counter[2:], 16)
         second = int('0x' + counter[:2], 16)
@@ -125,6 +140,7 @@ class Commands:
         f.write(idArray)
         f.close()
 
+        full_path = os.path.join(bluz_cli.__path__[0], 'resources')
         args = ['--program-bin']
         args.append('./int.bin')
         args.append('0x3F000')
@@ -132,16 +148,16 @@ class Commands:
         args.append('./device.bin')
         args.append('0x3F400')
         args.append('--program-bin')
-        args.append('./keys/cloud.public.bin')
+        args.append(os.path.join(full_path, 'keys/cloud.public.bin'))
         args.append('0x3F800')
 
         args.append('--program-hex')
-        args.append('./s110/s110_softdevice.hex')
+        args.append(os.path.join(full_path, 's110/s110_softdevice.hex'))
         args.append('--program-hex')
-        args.append('./programmer_fw/bootloader/bootloader.hex')
+        args.append(os.path.join(full_path, 'provisioning_firmware/bootloader.hex'))
 
         args.append('--program-hex')
-        args.append('./programmer_fw/system/system-part1.hex')
+        args.append(os.path.join(full_path, 'provisioning_firmware/system-part1.hex'))
 
         out = Commands.__run_adalink_command(programmer, args)
         print out
@@ -157,29 +173,21 @@ class Commands:
             print "---------------------------------------"
 
             args = ['--program-hex']
-            args.append('./s110/s110_softdevice.hex')
+            args.append(os.path.join(full_path, 's110/s110_softdevice.hex'))
             args.append('--program-hex')
-            args.append('./production_fw/bootloader/bootloader.hex')
+            args.append(os.path.join(full_path, 'production_firmware/bootloader.hex'))
 
             args.append('--program-hex')
-            args.append('./production_fw/system/system-part1.hex')
+            args.append(os.path.join(full_path, 'production_firmware/system-part1.hex'))
             args.append('--program-hex')
-            args.append('./production_fw/user-part/tinker.hex')
+            args.append(os.path.join(full_path, 'production_firmware/tinker.hex'))
 
             out = Commands.__run_adalink_command(programmer, args)
             print out
 
         print "---------------------------------------"
         print "Cleaning Up"
-        print "---------------------------------------"
-        directory = "./keys/" + hwID
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        shutil.copy('device.bin', directory)
-        shutil.copy('device.pem', directory)
-        shutil.copy('device.pub.pem', directory)
-
+        print "---------------------------------------"        
         os.remove('int.bin')
         os.remove('device.bin')
         os.remove('device.pem')
@@ -193,7 +201,7 @@ class Commands:
         local_args.append(programmer)
 
         local_args += args
-        output = subprocess.check_output(args)
+        output = subprocess.check_output(local_args)
         return output
 
 
