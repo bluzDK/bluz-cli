@@ -6,7 +6,7 @@ Bluz Command Line Interface
 ==========
 Bluz is a Development Kit (DK) that implements the Wiring language and talks to the [Particle](https://www.particle.io/) cloud through Bluetooth Low Energy. It can be accessed through a REST API and programmed from a Web IDE.
 
-##Installation
+## Installation
 You can install the CLI with pip:
 
 ```sh

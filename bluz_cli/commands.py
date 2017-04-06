@@ -187,7 +187,7 @@ class Commands:
 
         print "---------------------------------------"
         print "Cleaning Up"
-        print "---------------------------------------"        
+        print "---------------------------------------"
         os.remove('int.bin')
         os.remove('device.bin')
         os.remove('device.pem')
