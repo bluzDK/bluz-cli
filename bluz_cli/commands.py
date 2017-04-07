@@ -4,6 +4,7 @@ import requests
 import os
 import bluz_cli
 import serial
+import json
 
 from api_url import api_url
 
@@ -69,26 +70,6 @@ class Commands:
         except:
             pass
 
-        # send nrf_id to API to get full device ID
-        data = {
-            "nrf_id": nrf_id,
-            "product_id": product_id
-        }
-        headers = {
-            'x-api-key': api_key
-        }
-        # r = requests.post(api_url+'/provision', data=data, headers=headers)
-        # response = json.loads(r.text)
-        # if r.status_code == 403:
-        #     raise Exception("Permission denied, please contact sales at hello@bluz.io for a key")
-        # elif r.status_code != 200:
-        #     raise Exception("Unknown server error, please try again. If the issue persists, please contact support at hello@bluz.io")
-
-        # device_id = response['device_id']
-        device_id = 'b1e29999532A793F9C7271D6'
-
-        print "Device ID: " + device_id
-
         print "---------------------------------------"
         print "Generating Keys"
         print "---------------------------------------"
@@ -99,27 +80,40 @@ class Commands:
         args.append('--protocol')
         args.append('tcp')
         subprocess.check_output(args)
-
         os.rename('./device.der', './device.bin')
 
         print "---------------------------------------"
-        print "Sending ID to Cloud"
+        print "Provisioning Device"
         print "---------------------------------------"
-        args = ["particle"]
-        args.append('keys')
-        args.append('send')
-        args.append(device_id)
-        args.append('device.pub.pem')
-        args.append('--product_id')
-        args.append(product_id)
+        with open('device.pub.pem', 'rb') as f:
+            public_key = f.read()
 
-        try:
-            subprocess.check_output(args)
-        except:
+        # send nrf_id to API to get full device ID
+        data = {
+            "nrf_id": nrf_id,
+            "product_id": product_id,
+            "public_key": public_key
+        }
+        headers = {
+            'x-api-key': api_key
+        }
+        r = requests.post(api_url + '/provision', data=data, headers=headers)
+        response = json.loads(r.text)
+        if r.status_code == 403:
             os.remove('device.bin')
             os.remove('device.pem')
             os.remove('device.pub.pem')
-            raise Exception("Keys not successfully loaded to cloud. Please run again")
+            raise Exception("Permission denied, please contact sales at hello@bluz.io for a key")
+        elif r.status_code != 200:
+            os.remove('device.bin')
+            os.remove('device.pem')
+            os.remove('device.pub.pem')
+            raise Exception(
+                "Unknown server error: " + response + "\n. If the issue persists, please contact support at hello@bluz.io")
+
+        device_id = response['device_id']
+
+        print "Device ID: " + device_id
 
         print "---------------------------------------"
         print "Wiping Hardware Flash"
