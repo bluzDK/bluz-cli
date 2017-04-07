@@ -19,6 +19,9 @@ pip install git+https://github.com/bluzDK/bluz-cli.git
 ## Commands
 
 ### Provision
+
+**NOTE:** This command is currently in Beta
+
 Provisions a PCB that uses the nrf51822 for the Particle cloud. This command will flash the necessary ID and keys to the device, and will add the device ID of the board to the Particle cloud. It will then flash the latest bluz DK production firmware to the board.
 
 The provision command should only be used on hardware that is custom built from the bluz designs. It is NOT needed for standard boards that are purchased and shipped from bluz.
