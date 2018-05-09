@@ -32,6 +32,7 @@ The provision command requires a few external pieces and libraries, namely:
 - Adalink, a third party python library for programming nrf51822 hardware. Detailed instructions for installation can be found [here](https://github.com/adafruit/Adafruit_Adalink)
 - A programmer, a JLink programmer or an STLInk v2 are recomended.
 - If using STLink, you must install OpenOCD, this is explained in the Adalink documentation.
+- [OpenSSL](https://www.openssl.org/source/). This is necessary to generate the keys used by your device to handshake to the cloud.
 
 Once all the pieces are installed, you need to hook up your programmer to the [SWD pins](http://docs.bluz.io/hardware/dk/#pinout) on your PCB. You also need to hook up a USB Serial adapter to the TX/RX pins.
 
