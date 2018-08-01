@@ -135,6 +135,8 @@ class Commands:
         f.close()
 
         full_path = os.path.join(bluz_cli.__path__[0], 'resources')
+        firmware_path = os.path.join(full_path, 'bluz_dk_firmware' if product_id == '103' else 'gateway_firmware')
+
         args = ['--program-bin']
         args.append('./int.bin')
         args.append('0x3F000')
@@ -148,10 +150,10 @@ class Commands:
         args.append('--program-hex')
         args.append(os.path.join(full_path, 's110/s110_softdevice.hex'))
         args.append('--program-hex')
-        args.append(os.path.join(full_path, 'provisioning_firmware/bootloader.hex'))
+        args.append(os.path.join(firmware_path, 'provisioning_firmware/bootloader.hex'))
 
         args.append('--program-hex')
-        args.append(os.path.join(full_path, 'provisioning_firmware/system-part1.hex'))
+        args.append(os.path.join(firmware_path, 'provisioning_firmware/system-part1.hex'))
 
         out = Commands.__run_adalink_command(programmer, args)
         print out
@@ -167,14 +169,18 @@ class Commands:
             print "---------------------------------------"
 
             args = ['--program-hex']
-            args.append(os.path.join(full_path, 's110/s110_softdevice.hex'))
-            args.append('--program-hex')
-            args.append(os.path.join(full_path, 'production_firmware/bootloader.hex'))
+            if product_id == '103':
+                args.append(os.path.join(full_path, 's110/s110_softdevice.hex'))
+            else:
+                args.append(os.path.join(full_path, 's120/s120_softdevice.hex'))
 
             args.append('--program-hex')
-            args.append(os.path.join(full_path, 'production_firmware/system-part1.hex'))
+            args.append(os.path.join(firmware_path, 'production_firmware/bootloader.hex'))
+
             args.append('--program-hex')
-            args.append(os.path.join(full_path, 'production_firmware/tinker.hex'))
+            args.append(os.path.join(firmware_path, 'production_firmware/system-part1.hex'))
+            args.append('--program-hex')
+            args.append(os.path.join(firmware_path, 'production_firmware/tinker.hex'))
 
             out = Commands.__run_adalink_command(programmer, args)
             print out
@@ -186,6 +192,43 @@ class Commands:
         os.remove('device.bin')
         os.remove('device.pem')
         os.remove('device.pub.pem')
+
+    @staticmethod
+    def program(args):
+
+        parser = argparse.ArgumentParser(description='Programs and provisions bluz-based boards for the Particle cloud')
+        parser.add_argument('-p', '--programmer', default='jlink', help='programmer, either stlink or jlink')
+        parser.add_argument('-i', '--product_id', default='103',
+                            help='Product ID to provision, 103 for bluz DK and 269 for bluz Gateway')
+
+        opts = parser.parse_args(args)
+
+        programmer = opts.programmer
+        product_id = opts.product_id
+
+        print "---------------------------------------"
+        print "Programming Production Firmware"
+        print "---------------------------------------"
+
+        full_path = os.path.join(bluz_cli.__path__[0], 'resources')
+        firmware_path = os.path.join(full_path, 'bluz_dk_firmware' if product_id == '103' else 'gateway_firmware')
+
+        args = ['--program-hex']
+        if product_id == '103':
+            args.append(os.path.join(full_path, 's110/s110_softdevice.hex'))
+        else:
+            args.append(os.path.join(full_path, 's120/s120_softdevice.hex'))
+
+        args.append('--program-hex')
+        args.append(os.path.join(firmware_path, 'production_firmware/bootloader.hex'))
+
+        args.append('--program-hex')
+        args.append(os.path.join(firmware_path, 'production_firmware/system-part1.hex'))
+        args.append('--program-hex')
+        args.append(os.path.join(firmware_path, 'production_firmware/tinker.hex'))
+
+        out = Commands.__run_adalink_command(programmer, args)
+        print out
 
     @staticmethod
     def __run_adalink_command(programmer, args):

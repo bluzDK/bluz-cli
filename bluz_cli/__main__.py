@@ -15,6 +15,8 @@ def main(args=None):
         print ""
     elif args[0] == 'provision':
         Commands.provision(args[1:])
+    elif args[0] == 'program':
+        Commands.program(args[1:])
     elif args[0] == 'version':
         print "Version: " + str(__init__.__version__)
     else:
