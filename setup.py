@@ -27,7 +27,7 @@ setup(name              = 'bluz_cli',
                   'resources/gateway_firmware/production_firmware/*',
                   'resources/gateway_firmware/provisioning_firmware/*',
                   'resources/s110/*',
-                  'resources/s120/*']
+                  'resources/s120/*'
             ]
       }
 )
