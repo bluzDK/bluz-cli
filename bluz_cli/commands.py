@@ -225,7 +225,10 @@ class Commands:
         args.append('--program-hex')
         args.append(os.path.join(firmware_path, 'production_firmware/system-part1.hex'))
         args.append('--program-hex')
-        args.append(os.path.join(firmware_path, 'production_firmware/tinker.hex'))
+        if product_id == '103':
+            args.append(os.path.join(firmware_path, 'production_firmware/tinker.hex'))
+        else:
+            args.append(os.path.join(firmware_path, 'production_firmware/bluz_gateway.hex'))      
 
         out = Commands.__run_adalink_command(programmer, args)
         print out
