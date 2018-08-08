@@ -17,6 +17,17 @@ setup(name              = 'bluz_cli',
       include_package_data=True,
       py_modules=['bluz_cli'],
       package_data={
-            'bluz_cli': ['resources/*', 'resources/keys/*', 'resources/production_firmware/*', 'resources/provisioning_firmware/*', 'resources/s110/*']
+            'bluz_cli': [
+                  'resources/*',
+                  'resources/keys/*',
+                  'resources/bluz_dk_firmware/*',
+                  'resources/bluz_dk_firmware/production_firmware/*',
+                  'resources/bluz_dk_firmware/provisioning_firmware/*',
+                  'resources/gateway_firmware/*',
+                  'resources/gateway_firmware/production_firmware/*',
+                  'resources/gateway_firmware/provisioning_firmware/*',
+                  'resources/s110/*',
+                  'resources/s120/*']
+            ]
       }
 )
