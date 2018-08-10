@@ -148,7 +148,10 @@ class Commands:
         args.append('0x3F800')
 
         args.append('--program-hex')
-        args.append(os.path.join(full_path, 's110/s110_softdevice.hex'))
+        if product_id == '103':
+            args.append(os.path.join(full_path, 's110/s110_softdevice.hex'))
+        else:
+            args.append(os.path.join(full_path, 's120/s120_softdevice.hex'))
         args.append('--program-hex')
         args.append(os.path.join(firmware_path, 'provisioning_firmware/bootloader.hex'))
 
